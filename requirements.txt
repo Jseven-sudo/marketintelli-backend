@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+redis
+google-cloud-storage
+google-cloud-pubsub
+google-cloud-bigquery
+google-cloud-vision
+openai
+Pillow
+tenacity
+aiohttp
+prometheus-client
+pytest
