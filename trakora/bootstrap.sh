@@ -21,7 +21,7 @@ ADMIN_TOKEN=$(openssl rand -hex 32)
 EOF
 fi
 
-docker compose up -d --build
+$COMPOSE up -d --build
 
 cat >/etc/cron.d/trakora-backup <<'EOF'
 17 1 * * * root /opt/trakora/backup.sh >>/var/log/trakora-backup.log 2>&1
@@ -50,4 +50,4 @@ ufw allow 80/tcp
 ufw --force enable
 
 echo "TRAKORA_BOOTSTRAP_OK"
-docker compose ps
+$COMPOSE ps
