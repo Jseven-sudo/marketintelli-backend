@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trakora
+      POSTGRES_USER: trakora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - trakora_pg:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U trakora -d trakora"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://trakora:${POSTGRES_PASSWORD}@db:5432/trakora
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      TZ: Africa/Johannesburg
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "80:8000"
+  worker:
+    build: .
+    restart: unless-stopped
+    command: ["python","worker.py"]
+    environment:
+      DATABASE_URL: postgresql://trakora:${POSTGRES_PASSWORD}@db:5432/trakora
+      INGEST_INTERVAL_SECONDS: "21600"
+      TZ: Africa/Johannesburg
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  trakora_pg:
